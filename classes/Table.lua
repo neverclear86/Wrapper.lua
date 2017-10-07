@@ -54,8 +54,8 @@ Table = {}
     return ret
   end
 
-  function Table:index()
-
+  function Table:index(value)
+    
   end
 
   function Table:clone()
@@ -82,6 +82,13 @@ Table = {}
     return Table.new(new)
   end
 
+  function Table:dmap(callback)
+    for k, v in pairs(self) do
+      self[v] = callback(v, k)
+    end
+    return self
+  end
+
   function Table:sort(comparator)
     local new = self:clone()
     table.sort(new, comparator)
@@ -105,15 +112,13 @@ Table = {}
     end
   end
 
-  function Table:matchAll()
-    local ret = true
-    for i, v in pairs(self) do
-      if not v then
-        ret = false
-        break
+  function Table:matchAll(condition)
+    for k, v in pairs(self) do
+      if not condition(v, k) then
+        return false
       end
     end
-    return ret
+    return true
   end
 
   function Table:sum()
