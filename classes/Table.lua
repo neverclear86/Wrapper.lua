@@ -15,18 +15,25 @@ Table = {}
   end
 
   function Table:insert(key, value)
-    table.insert(self, value)
+    if value == nil then
+      value = key
+      key = #self + 1
+    end
+
+    if type(key) == "number" then
+      table.insert(self, key, value)
+    elseif type(key) == "string" then
+      self[key] = value
+    end
     return self
   end
 
   function Table:add(key, value)
-    if value == nil then
-      value = key
-      table.insert(self, value)
-    else
-      self[key] = value
-    end
-    return self
+    return self:insert(key, value)
+  end
+
+  function remove()
+
   end
 
   function Table:clone()
@@ -44,7 +51,7 @@ Table = {}
   end
 
   -- stream
-
+  -- 中間操作
   function Table:map(callback)
     local new = {}
     for i, v in ipairs(self) do
@@ -52,7 +59,7 @@ Table = {}
     end
     return Table.new(new)
   end
-  
+
   function Table:sort(comparator)
     local new = self:clone()
     table.sort(new, comparator)
@@ -69,6 +76,7 @@ Table = {}
     return Table.new(new)
   end
 
+  -- 終端操作
   function Table:foreach(callback)
     for i, v in ipairs(self) do
       callback(v, i)
@@ -96,6 +104,3 @@ Table = {}
 
 
 -- Table Class
-
-
-return Table
