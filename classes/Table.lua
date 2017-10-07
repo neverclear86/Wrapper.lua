@@ -1,3 +1,10 @@
+function isNum(a)
+  return type(a) == "number"
+end
+function isStr(a)
+  return type(a) == "string"
+end
+
 Table = {}
 
   function Table.new(val)
@@ -20,19 +27,34 @@ Table = {}
       key = #self + 1
     end
 
+    local ret = false
     if type(key) == "number" then
       table.insert(self, key, value)
+      ret = true
     elseif type(key) == "string" then
       self[key] = value
+      ret = true
     end
-    return self
+    return ret
   end
 
   function Table:add(key, value)
     return self:insert(key, value)
   end
 
-  function remove()
+  function Table:remove(key)
+    local ret = false
+    if isNum(key) then
+      table.remove(self, key)
+      ret = true
+    elseif isStr(key) then
+      self[key] = nil
+      ret = true
+    end
+    return ret
+  end
+
+  function Table:index()
 
   end
 
