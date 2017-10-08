@@ -1,14 +1,20 @@
-function isNum(a)
-  return type(a) == "number"
+local function checkType(a, type)
+  return type(a) == type
 end
-function isStr(a)
-  return type(a) == "string"
+local function isNum(a)
+  return checkType(a, "number")
+end
+local function isStr(a)
+  return checkType(a, "string")
+end
+local function isTable(a)
+  return checkType(a, "table")
 end
 
 Table = {}
 
   function Table.new(val)
-    local this = type(val) == "table" and val or {}
+    local this = isTable(val) and val or {}
     setmetatable(this, {
       __class = "Table",
       __index = Table,
@@ -28,10 +34,10 @@ Table = {}
     end
 
     local ret = false
-    if type(key) == "number" then
+    if isNum(key) then
       table.insert(self, key, value)
       ret = true
-    elseif type(key) == "string" then
+    elseif isStr(key) then
       self[key] = value
       ret = true
     end
@@ -55,14 +61,14 @@ Table = {}
   end
 
   function Table:index(value)
-    
+
   end
 
   function Table:clone()
     local meta = getmetatable(self)
     local copy = {}
     for k, v in pairs(self) do
-      if type(v) == "table" then
+      if isTable(v) then
         copy[k] = Table:new(v):clone()
       else
         copy[k] = v
