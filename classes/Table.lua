@@ -1,5 +1,5 @@
-local function checkType(a, type)
-  return type(a) == type
+local function checkType(a, t)
+  return type(a) == t
 end
 local function isNum(a)
   return checkType(a, "number")
@@ -11,6 +11,8 @@ local function isTable(a)
   return checkType(a, "table")
 end
 
+--- Table class is table wrapper
+--
 Table = {}
 
   function Table.new(val)
@@ -26,6 +28,11 @@ Table = {}
   function Table:tostring()
     return tostring(self)
   end
+
+  function Table:concat(tbl)
+
+  end
+
 
   function Table:insert(key, value)
     if value == nil then
@@ -60,8 +67,15 @@ Table = {}
     return ret
   end
 
-  function Table:index(value)
-
+  function Table:find(value)
+    local list = {}
+    for k, v in pairs(self) do
+      if v == value then
+        table.insert(list, k)
+      end
+    end
+    unpack = unpack == nil and table.unpack or unpack
+    return unpack(list)
   end
 
   function Table:clone()
@@ -78,12 +92,16 @@ Table = {}
     return copy
   end
 
+  function Table:clear()
+    self = Table.new({})
+  end
+
   -- stream
   -- 中間操作
   function Table:map(callback)
     local new = {}
-    for i, v in ipairs(self) do
-      table.insert(new, callback(v, i))
+    for k, v in pairs(self) do
+      table.insert(new, callback(v, k))
     end
     return Table.new(new)
   end
@@ -101,6 +119,11 @@ Table = {}
     return Table.new(new)
   end
 
+  function Table:dsort(comparator)
+    table.sort(self, comparator)
+    return self
+  end
+
   function Table:filter(condition)
     local new = {}
     for i, v in pairs(self) do
@@ -111,11 +134,33 @@ Table = {}
     return Table.new(new)
   end
 
-  -- 終端操作
-  function Table:foreach(callback)
-    for i, v in ipairs(self) do
-      callback(v, i)
+  function Table:slice(a, b)
+    local start, finish
+    if b == nil then
+      start = 1
+      finish = a
+    else
+      start = a
+      finish = b
     end
+
+    local new = {}
+    for i = start, finish do
+      table.insert(new, self[i])
+    end
+    return Table.new(new)
+  end
+
+
+  -- 終端操作
+  function Table:each(callback)
+    for k, v in pairs(self) do
+      callback(v, k)
+    end
+  end
+
+  function Table:foreach(callback)
+    return self:each(callback)
   end
 
   function Table:matchAll(condition)
@@ -127,6 +172,15 @@ Table = {}
     return true
   end
 
+  function Table:matchAny(condition)
+    for k, v in pairs(self) do
+      if condition(v, k) then
+        return true
+      end
+    end
+    return false
+  end
+
   function Table:sum()
     local sum = 0
     for i, v in pairs(self) do
@@ -135,5 +189,7 @@ Table = {}
     return sum
   end
 
+  -- Table()でもインスタンス生成
+  setmetatable(Table, {__call = function(t, val) return t.new(val) end})
 
 -- Table Class
