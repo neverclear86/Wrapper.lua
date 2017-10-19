@@ -21,6 +21,7 @@ Table = {}
       __class = "Table",
       __index = Table,
       __tostring = Table.tostring,
+      __add = Table.cat,
     })
     return this
   end
@@ -29,10 +30,18 @@ Table = {}
     return tostring(self)
   end
 
-  function Table:concat(tbl)
-
+  function Table:cat(tbl)
+    local new = self:clone()
+    local last = #new
+    for k, v in pairs(tbl) do
+      if isNum(k) then
+        new[last + k] = v
+      else
+        new[k] = v
+      end
+    end
+    return new
   end
-
 
   function Table:insert(key, value)
     if value == nil then
@@ -67,6 +76,18 @@ Table = {}
     return ret
   end
 
+  function Table:pop()
+    local ret = self[#self]
+    table.remove(self, #self)
+    return ret
+  end
+
+  function Table:shift()
+    local ret = self[1]
+    table.remove(self, 1)
+    return ret
+  end
+
   function Table:find(value)
     local list = {}
     for k, v in pairs(self) do
@@ -83,7 +104,7 @@ Table = {}
     local copy = {}
     for k, v in pairs(self) do
       if isTable(v) then
-        copy[k] = Table:new(v):clone()
+        copy[k] = Table.new(v):clone()
       else
         copy[k] = v
       end
